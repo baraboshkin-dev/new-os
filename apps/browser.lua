@@ -1,5 +1,5 @@
 
--- /os/apps/browser.lua
+-- apps/browser.lua
 local function drawBrowser()
     term.clear()
     term.setCursorPos(1,1)

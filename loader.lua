@@ -1,7 +1,7 @@
 
--- /os/loader.lua
+-- loader.lua
 local function loadAPI(name)
-    local path = "/os/api/" .. name .. ".lua"
+    local path = "api/" .. name .. ".lua"
     if fs.exists(path) then
         os.loadAPI(path)
         return true
@@ -12,11 +12,11 @@ end
 
 local function loadApps()
     local apps = {}
-    local files = fs.list("/os/apps")
+    local files = fs.list("apps")
     for _, file in ipairs(files) do
         local name = file:match("(.+)%.lua$")
         if name then
-            apps[name] = require("/os/apps/" .. name)
+            apps[name] = require("apps/" .. name)
         end
     end
     return apps
