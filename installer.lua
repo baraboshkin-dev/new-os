@@ -44,6 +44,10 @@ local function install()
         end
     end
     
+    -- Copy startup.lua to root directory
+    fs.copy("os/startup.lua", "startup.lua")
+    print("Copied startup.lua to root directory")
+    
     print("Installation complete. Rebooting in 3 seconds...")
     sleep(3)
     os.reboot()
