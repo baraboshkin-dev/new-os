@@ -3,20 +3,34 @@
 local function loadAPI(name)
     local path = "api/" .. name .. ".lua"
     if fs.exists(path) then
-        os.loadAPI(path)
+        local success, err = pcall(os.loadAPI, path)
+        if not success then
+            printError("Error loading API " .. name .. ": " .. err)
+            return false
+        end
         return true
     else
+        printError("API file not found: " .. path)
         return false
     end
 end
 
 local function loadApps()
     local apps = {}
+    if not fs.exists("apps") or not fs.isDir("apps") then
+        printError("Apps directory not found")
+        return apps
+    end
     local files = fs.list("apps")
     for _, file in ipairs(files) do
         local name = file:match("(.+)%.lua$")
         if name then
-            apps[name] = require("apps/" .. name)
+            local success, app = pcall(require, "apps/" .. name)
+            if success then
+                apps[name] = app
+            else
+                printError("Error loading app " .. name .. ": " .. app)
+            end
         end
     end
     return apps
@@ -57,11 +71,18 @@ end
 
 local function run()
     -- Load APIs
-    loadAPI("system")
-    loadAPI("users")
+    if not loadAPI("system") or not loadAPI("users") then
+        printError("Failed to load essential APIs")
+        return
+    end
     
     -- Load apps
     local apps = loadApps()
+    if next(apps) == nil then
+        printError("No apps loaded")
+        return
+    end
+    
     local appNames = {}
     for name, _ in pairs(apps) do
         table.insert(appNames, name)
@@ -78,17 +99,21 @@ local function run()
             selected = selected + 1
         elseif key == keys.enter then
             if appNames[selected] == "Exit" then
+                term.clear()
+                term.setCursorPos(1,1)
+                print("Exiting CC:Tweaked OS...")
                 break
             elseif apps[appNames[selected]] then
-                apps[appNames[selected]].run()
+                term.clear()
+                term.setCursorPos(1,1)
+                local success, err = pcall(apps[appNames[selected]].run)
+                if not success then
+                    printError("Error running app " .. appNames[selected] .. ": " .. err)
+                    os.pullEvent("key")
+                end
             end
         end
     end
-    
-    term.clear()
-    term.setCursorPos(1,1)
-    print("Shutting down...")
-    sleep(1)
 end
 
 return {
