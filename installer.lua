@@ -37,7 +37,7 @@ local function install()
     
     for _, file in ipairs(files) do
         print("Downloading " .. file .. "...")
-        if downloadFile(baseUrl .. "os/" .. file, file) then
+        if downloadFile(baseUrl .. file, file) then
             print(file .. " downloaded successfully.")
         else
             print("Failed to download " .. file)
